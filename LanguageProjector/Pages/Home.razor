@@ -1,0 +1,71 @@
+@page "/"
+@layout LandingLayout
+
+<div class="hero bg-base-100 min-h-dvh">
+    <div class="hero-content text-center">
+        <div class="max-w-2xl">
+            <h1 class="text-5xl md:text-6xl font-bold tracking-tight">
+                Language
+                <span class="text-primary">Projector</span>
+            </h1>
+            <p class="text-lg md:text-xl text-base-content/70 py-6 max-w-xl mx-auto leading-relaxed">
+                Design, build, and manage constructed languages with ease. From phonology to grammar,
+                bring your linguistic vision to life.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="https://github.com" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+                    View Docs
+                </a>
+                <a href="/dashboard" class="btn btn-outline btn-lg">
+                    Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-5xl mx-auto px-4 pb-24">
+    <div class="divider mb-12"></div>
+    <h2 class="text-3xl font-bold text-center mb-10">Everything you need to build your language</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="card bg-base-200 border border-base-300 shadow-sm">
+            <div class="card-body items-center text-center">
+                <div class="text-primary mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+                    </svg>
+                </div>
+                <h3 class="card-title">Phonology &amp; Orthography</h3>
+                <p class="text-base-content/70">Define sound inventories, writing systems, and phonotactic rules for your language.</p>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 border border-base-300 shadow-sm">
+            <div class="card-body items-center text-center">
+                <div class="text-primary mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.7 50.7 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.8 50.8 0 0 1 12 7.489a50.8 50.8 0 0 1 7.74 2.658" />
+                    </svg>
+                </div>
+                <h3 class="card-title">Grammar &amp; Syntax</h3>
+                <p class="text-base-content/70">Model parts of speech, grammatical rules, and sentence structures with ease.</p>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 border border-base-300 shadow-sm">
+            <div class="card-body items-center text-center">
+                <div class="text-primary mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                    </svg>
+                </div>
+                <h3 class="card-title">Dictionary &amp; Lexicon</h3>
+                <p class="text-base-content/70">Build a rich vocabulary with definitions, usage examples, and semantic relations.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-12">
+        <a href="/dashboard" class="btn btn-primary btn-wide">Go to Dashboard</a>
+    </div>
+</div>
