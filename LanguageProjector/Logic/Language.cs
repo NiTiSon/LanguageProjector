@@ -2,16 +2,15 @@
 
 public sealed class Language
 {
-    public Guid Id { get; }
+    public Guid Id { get; init; }
+    public string Name { get; set; } = string.Empty;
+    public List<object> Words { get; set; } = [];
+    public DateTime LastModified { get; set; }
 
-    private Language(Guid id)
+    public static Language Create(string name) => new()
     {
-        Id = id;
-    }
-
-    public static Language Create()
-    {
-        Guid id = Guid.CreateVersion7();
-        return new(id);
-    }
+        Id = Guid.CreateVersion7(),
+        Name = name,
+        LastModified = DateTime.UtcNow
+    };
 }

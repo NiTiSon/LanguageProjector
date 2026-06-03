@@ -1,6 +1,9 @@
 @page "/dashboard"
 @using LanguageProjector.Logic
+@using LanguageProjector.Services
 @inject IJSRuntime Js
+@inject LocalStorageService Storage
+@inject NavigationManager Navigation
 
 <div class="max-w-5xl mx-auto px-4 py-8">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -55,7 +58,7 @@
                         <div class="flex items-start justify-between">
                             <div class="min-w-0">
                                 <h3 class="card-title text-lg truncate">@lang.Name</h3>
-                                <small class="text-sm text-base-content/60 mt-1">@lang.WordCount words</small>
+                                <small class="text-sm text-base-content/60 mt-1">@lang.Words.Count words</small>
                             </div>
                             <div class="dropdown dropdown-end" @onclick:stopPropagation>
                                 <button class="btn btn-sm btn-ghost btn-square" tabindex="0" role="button">
@@ -70,7 +73,7 @@
                             </div>
                         </div>
                         <div class="mt-3 flex items-center gap-2">
-                            <span class="text-xs text-base-content/40">Modified @lang.LastModified.ToLongDateString()</span>
+                            <span class="text-xs text-base-content/40">Modified @FormatDate(lang.LastModified)</span>
                             <button class="btn btn-sm btn-ghost ml-auto text-primary"
                                     @onclick="() => EditLanguage(lang.Id)"
                                     @onclick:stopPropagation>
@@ -86,37 +89,44 @@
 
 <dialog id="create-modal" class="modal">
     <div class="modal-box">
-        <h3 class="text-lg font-bold">Create Language</h3>
-        <input type="text" @bind="_newLanguageName" @bind:event="oninput"
-                placeholder="Language name" class="input w-full mt-4 focus:outline-none"
-               @onkeydown="HandleEnterKey" />
-        <div class="modal-action">
-            <button class="btn btn-primary" @onclick="ConfirmCreate">Create</button>
-            <button class="btn" @onclick="CloseCreateModal">Cancel</button>
-        </div>
+        <form @onsubmit="ConfirmCreate">
+            <h3 class="text-lg font-bold">Create Language</h3>
+            <input type="text" @bind="_newLanguageName" @bind:event="oninput"
+                    placeholder="Language name" class="input w-full mt-4 focus:outline-none" />
+            <div class="modal-action">
+                <button type="submit" class="btn btn-primary">Create</button>
+                <button type="button" class="btn" @onclick="CloseCreateModal">Cancel</button>
+            </div>
+        </form>
     </div>
     <form method="dialog" class="modal-backdrop">
         <button>close</button>
     </form>
 </dialog>
 
+<dialog id="delete-modal" class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Delete Language</h3>
+        <p class="py-4">
+            Are you sure you want to delete <strong>@_languageToDelete?.Name</strong>?
+            This action cannot be undone.
+        </p>
+        <div class="modal-action">
+            <button class="btn btn-error" @onclick="ConfirmDelete">Delete</button>
+            <button class="btn" @onclick="CloseDeleteModal">Cancel</button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button @onclick="CloseDeleteModal">close</button>
+    </form>
+</dialog>
+
 @code {
-    private record LanguageSummary(Guid Id, string Name, int WordCount, DateTime LastModified);
+    private List<Language> _languages = [];
 
-    private List<LanguageSummary> _languages = [];
-
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        LoadLanguages();
-    }
-
-    private void LoadLanguages()
-    {
-        #if DEBUG
-        _languages = [
-            new LanguageSummary(Guid.CreateVersion7(), "Ananas", 10, DateTime.Now)
-        ];
-        #endif
+        _languages = await Storage.GetLanguagesAsync();
     }
 
     private string _newLanguageName = "";
@@ -127,18 +137,15 @@
         await Js.InvokeVoidAsync("showModal", "create-modal");
     }
 
-    private async Task HandleEnterKey(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter") await ConfirmCreate();
-    }
-
     private async Task ConfirmCreate()
     {
         var name = _newLanguageName?.Trim();
         if (string.IsNullOrEmpty(name)) return;
 
-        _languages.Add(new LanguageSummary(Guid.CreateVersion7(), name, 0, DateTime.Now));
+        var lang = Language.Create(name);
+        _languages.Add(lang);
         await CloseCreateModal();
+        await Storage.SaveLanguagesAsync(_languages);
     }
 
     private async Task CloseCreateModal()
@@ -156,11 +163,32 @@
         await Task.CompletedTask;
     }
 
-    private void DeleteLanguage(Guid id)
+    private Language? _languageToDelete;
+
+    private async Task DeleteLanguage(Guid id)
     {
+        _languageToDelete = _languages.FirstOrDefault(l => l.Id == id);
+        if (_languageToDelete is null) return;
+        await Js.InvokeVoidAsync("showModal", "delete-modal");
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (_languageToDelete is null) return;
+        _languages.RemoveAll(l => l == _languageToDelete);
+        await Storage.SaveLanguagesAsync(_languages);
+        await CloseDeleteModal();
+    }
+
+    private async Task CloseDeleteModal()
+    {
+        await Js.InvokeVoidAsync("closeModal", "delete-modal");
     }
 
     private void EditLanguage(Guid id)
     {
+        Navigation.NavigateTo($"/language/{id}");
     }
+
+    private static string FormatDate(DateTime dt) => dt.ToLocalTime().ToLongDateString();
 }
