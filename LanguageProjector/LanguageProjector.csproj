@@ -11,5 +11,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.8" PrivateAssets="all" />
   </ItemGroup>
+    
+    <Target Name="Css" BeforeTargets="Compile">
+        <Exec Command="npm run css" />
+    </Target>
 
 </Project>
