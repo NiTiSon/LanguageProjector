@@ -1,5 +1,6 @@
 @page "/dashboard"
 @using LanguageProjector.Logic
+@inject IJSRuntime Js
 
 <div class="max-w-5xl mx-auto px-4 py-8">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -83,6 +84,22 @@
     }
 </div>
 
+<dialog id="create-modal" class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Create Language</h3>
+        <input type="text" @bind="_newLanguageName" @bind:event="oninput"
+                placeholder="Language name" class="input w-full mt-4 focus:outline-none"
+               @onkeydown="HandleEnterKey" />
+        <div class="modal-action">
+            <button class="btn btn-primary" @onclick="ConfirmCreate">Create</button>
+            <button class="btn" @onclick="CloseCreateModal">Cancel</button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
 @code {
     private record LanguageSummary(Guid Id, string Name, int WordCount, DateTime LastModified);
 
@@ -102,8 +119,31 @@
         #endif
     }
 
-    private void CreateLanguage()
+    private string _newLanguageName = "";
+
+    private async Task CreateLanguage()
     {
+        _newLanguageName = "";
+        await Js.InvokeVoidAsync("showModal", "create-modal");
+    }
+
+    private async Task HandleEnterKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await ConfirmCreate();
+    }
+
+    private async Task ConfirmCreate()
+    {
+        var name = _newLanguageName?.Trim();
+        if (string.IsNullOrEmpty(name)) return;
+
+        _languages.Add(new LanguageSummary(Guid.CreateVersion7(), name, 0, DateTime.Now));
+        await CloseCreateModal();
+    }
+
+    private async Task CloseCreateModal()
+    {
+        await Js.InvokeVoidAsync("closeModal", "create-modal");
     }
 
     private async Task ExportLanguage(Guid id)

@@ -45,6 +45,8 @@
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('theme', theme);
         };
+        window.showModal = function(id) { document.getElementById(id).showModal(); };
+        window.closeModal = function(id) { document.getElementById(id).close(); };
     </script>
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
 </body>
