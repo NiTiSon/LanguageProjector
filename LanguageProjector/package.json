@@ -1,15 +1,15 @@
 {
-  "name": "languageprojector",
+  "name": "language-projector",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "css": "@tailwindcss/cli -i wwwroot/css/src/tailwind.css -o wwwroot/css/tailwind.css",
-    "css:watch": "@tailwindcss/cli -i wwwroot/css/src/tailwind.css -o wwwroot/css/tailwind.css --watch"
+    "css": "tailwindcss -i wwwroot/css/src/tailwind.css -o wwwroot/css/tailwind.css",
+    "css:watch": "tailwindcss -i wwwroot/css/src/tailwind.css -o wwwroot/css/tailwind.css --watch"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "@tailwindcss/cli": "^4.3.0",
