@@ -16,4 +16,16 @@
         <Exec Command="npm run css" />
     </Target>
 
+    <Target Name="GenerateGitCommitHash" BeforeTargets="BeforeBuild">
+        <Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low">
+            <Output TaskParameter="ConsoleOutput" PropertyName="GitCommitHash" />
+        </Exec>
+        <ItemGroup Condition="'$(GitCommitHash)' != ''">
+            <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+                <_Parameter1>GitCommit</_Parameter1>
+                <_Parameter2>$(GitCommitHash)</_Parameter2>
+            </AssemblyAttribute>
+        </ItemGroup>
+    </Target>
+
 </Project>
