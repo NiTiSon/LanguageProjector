@@ -1,0 +1,147 @@
+@using LanguageProjector.Logic
+
+<div class="max-w-4xl">
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-bold">Phonemes</h1>
+        <button class="btn btn-sm btn-primary" @onclick="AddPhoneme">Add Phoneme</button>
+    </div>
+
+    @if (Lang.Phonemes.Count == 0)
+    {
+        <div class="card bg-base-100 border border-base-300">
+            <div class="card-body text-center">
+                <p class="text-base-content/60">No phonemes yet. Click "Add Phoneme" to start building the inventory.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="overflow-x-auto">
+            <table class="table table-zebra w-full">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Type</th>
+                        <th>Features</th>
+                        <th>Description</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Lang.Phonemes.Count; i++)
+                    {
+                        var phoneme = Lang.Phonemes[i];
+                        var index = i;
+                        <tr>
+                            <td>
+                                <input type="text" class="input input-bordered input-sm w-20 font-mono text-center"
+                                       value="@phoneme.Symbol"
+                                       @onchange='(ChangeEventArgs e) => { phoneme.Symbol = e.Value?.ToString() ?? ""; _ = SaveAsync.InvokeAsync(); }' />
+                            </td>
+                            <td>
+                                <select class="select select-bordered select-sm"
+                                        value="@phoneme.Type"
+                                        @onchange='(ChangeEventArgs e) => { phoneme.Type = Enum.Parse<PhonemeType>(e.Value?.ToString() ?? "Consonant"); _ = SaveAsync.InvokeAsync(); }'>
+                                    @foreach (var t in Enum.GetValues<PhonemeType>())
+                                    {
+                                        <option value="@t">@t</option>
+                                    }
+                                </select>
+                            </td>
+                            <td>
+                                @if (phoneme.Type == PhonemeType.Consonant)
+                                {
+                                    <div class="flex flex-wrap gap-1 items-center">
+                                        <select class="select select-bordered select-xs"
+                                                value="@phoneme.Place"
+                                                @onchange='(ChangeEventArgs e) => { phoneme.Place = Enum.TryParse<ConsonantPlace>(e.Value?.ToString(), out var p) ? p : null; _ = SaveAsync.InvokeAsync(); }'>
+                                            <option value="">Place</option>
+                                            @foreach (var p in Enum.GetValues<ConsonantPlace>())
+                                            {
+                                                <option value="@p">@p</option>
+                                            }
+                                        </select>
+                                        <select class="select select-bordered select-xs"
+                                                value="@phoneme.Manner"
+                                                @onchange='(ChangeEventArgs e) => { phoneme.Manner = Enum.TryParse<ConsonantManner>(e.Value?.ToString(), out var m) ? m : null; _ = SaveAsync.InvokeAsync(); }'>
+                                            <option value="">Manner</option>
+                                            @foreach (var m in Enum.GetValues<ConsonantManner>())
+                                            {
+                                                <option value="@m">@m</option>
+                                            }
+                                        </select>
+                                        <label class="label cursor-pointer gap-1">
+                                            <span class="label-text text-xs">Voiced</span>
+                                            <input type="checkbox" class="checkbox checkbox-xs"
+                                                   checked="@(phoneme.Voiced == true)"
+                                                   @onchange='(ChangeEventArgs e) => { phoneme.Voiced = (bool?)e.Value; _ = SaveAsync.InvokeAsync(); }' />
+                                        </label>
+                                    </div>
+                                }
+                                else if (phoneme.Type == PhonemeType.Vowel)
+                                {
+                                    <div class="flex flex-wrap gap-1 items-center">
+                                        <select class="select select-bordered select-xs"
+                                                value="@phoneme.Height"
+                                                @onchange='(ChangeEventArgs e) => { phoneme.Height = Enum.TryParse<VowelHeight>(e.Value?.ToString(), out var h) ? h : null; _ = SaveAsync.InvokeAsync(); }'>
+                                            <option value="">Height</option>
+                                            @foreach (var h in Enum.GetValues<VowelHeight>())
+                                            {
+                                                <option value="@h">@h</option>
+                                            }
+                                        </select>
+                                        <select class="select select-bordered select-xs"
+                                                value="@phoneme.Backness"
+                                                @onchange='(ChangeEventArgs e) => { phoneme.Backness = Enum.TryParse<VowelBackness>(e.Value?.ToString(), out var b) ? b : null; _ = SaveAsync.InvokeAsync(); }'>
+                                            <option value="">Backness</option>
+                                            @foreach (var b in Enum.GetValues<VowelBackness>())
+                                            {
+                                                <option value="@b">@b</option>
+                                            }
+                                        </select>
+                                        <label class="label cursor-pointer gap-1">
+                                            <span class="label-text text-xs">Rounded</span>
+                                            <input type="checkbox" class="checkbox checkbox-xs"
+                                                   checked="@(phoneme.Rounded == true)"
+                                                   @onchange='(ChangeEventArgs e) => { phoneme.Rounded = (bool?)e.Value; _ = SaveAsync.InvokeAsync(); }' />
+                                        </label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-base-content/40 text-sm">—</span>
+                                }
+                            </td>
+                            <td>
+                                <input type="text" class="input input-bordered input-sm w-full"
+                                       value="@phoneme.Description"
+                                       @onchange='(ChangeEventArgs e) => { phoneme.Description = e.Value?.ToString(); _ = SaveAsync.InvokeAsync(); }' />
+                            </td>
+                            <td>
+                                <button class="btn btn-ghost btn-xs text-error" @onclick='() => { Lang.Phonemes.RemoveAt(index); _ = SaveAsync.InvokeAsync(); }'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Language Lang { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback SaveAsync { get; set; }
+
+    private void AddPhoneme()
+    {
+        Lang.Phonemes.Add(Phoneme.Create("", PhonemeType.Consonant));
+        _ = SaveAsync.InvokeAsync();
+    }
+}

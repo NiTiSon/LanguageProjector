@@ -1,0 +1,33 @@
+@using LanguageProjector.Logic
+
+<div class="max-w-2xl">
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-bold">@Lang.Name</h1>
+        <button class="btn btn-sm btn-primary" @onclick="SaveAsync">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4.5 12.75 6 6 9-13.5"/>
+            </svg>
+            Save
+        </button>
+    </div>
+    <div class="card bg-base-100 border border-base-300">
+        <div class="card-body">
+            <h2 class="card-title">General Information</h2>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Name</span>
+                </label>
+                <input type="text" class="input input-bordered" @bind="Lang.Name" @bind:after="() => SaveAsync.InvokeAsync()" />
+            </div>
+            <p class="text-base-content/60 text-sm mt-2">Last modified: @Lang.LastModified.ToString("g")</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Language Lang { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback SaveAsync { get; set; }
+}

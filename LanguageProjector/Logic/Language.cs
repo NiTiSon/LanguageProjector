@@ -4,7 +4,7 @@ public sealed class Language
 {
     public Guid Id { get; init; }
     public string Name { get; set; } = string.Empty;
-    public List<object> Words { get; set; } = [];
+    public List<Phoneme> Phonemes { get; set; } = [];
     public DateTime LastModified { get; set; }
 
     public static Language Create(string name) => new()
