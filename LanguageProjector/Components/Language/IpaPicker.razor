@@ -1,0 +1,188 @@
+@using LanguageProjector.Logic
+
+<div class="modal modal-open">
+    <div class="modal-box max-w-4xl">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold">IPA Picker</h3>
+            <div class="tabs tabs-box">
+                <button class="tab tab-sm @(_activeTab == Tab.Consonants ? "tab-active" : "")" @onclick='() => _activeTab = Tab.Consonants'>
+                    Consonants
+                </button>
+                <button class="tab tab-sm @(_activeTab == Tab.Vowels ? "tab-active" : "")" @onclick='() => _activeTab = Tab.Vowels'>
+                    Vowels
+                </button>
+            </div>
+        </div>
+
+        @if (_activeTab == Tab.Consonants)
+        {
+            <div class="overflow-x-auto">
+                <table class="table table-zebra table-xs w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-xs">Manner ↓ / Place →</th>
+                            @foreach (var place in Enum.GetValues<ConsonantPlace>())
+                            {
+                                <th class="text-center text-xs whitespace-nowrap" colspan="2">@ShortPlace(place)</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var manner in Enum.GetValues<ConsonantManner>())
+                        {
+                            <tr>
+                                <td class="text-xs font-semibold whitespace-nowrap">@manner</td>
+                                @foreach (var place in Enum.GetValues<ConsonantPlace>())
+                                {
+                                    var vlSymbol = IpaData.ResolveConsonant(place, manner, false);
+                                    var vdSymbol = IpaData.ResolveConsonant(place, manner, true);
+                                    <td class="text-center p-0">
+                                        @if (vlSymbol is not null)
+                                        {
+                                            <button class="btn btn-ghost btn-xs font-mono text-lg p-0 min-h-0 h-7 w-7 @(IsSelectedConsonant(place, manner, false) ? "bg-primary text-primary-content" : "")"
+                                                    title="@place @manner voiceless"
+                                                    @onclick='() => SelectConsonant(place, manner, false)'>
+                                                @vlSymbol
+                                            </button>
+                                        }
+                                    </td>
+                                    <td class="text-center p-0">
+                                        @if (vdSymbol is not null)
+                                        {
+                                            <button class="btn btn-ghost btn-xs font-mono text-lg p-0 min-h-0 h-7 w-7 @(IsSelectedConsonant(place, manner, true) ? "bg-primary text-primary-content" : "")"
+                                                    title="@place @manner voiced"
+                                                    @onclick='() => SelectConsonant(place, manner, true)'>
+                                                @vdSymbol
+                                            </button>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="flex justify-center">
+                <table class="table table-zebra table-xs">
+                    <thead>
+                        <tr>
+                            <th class="text-xs">Height ↓ / Backness →</th>
+                            @foreach (var backness in Enum.GetValues<VowelBackness>())
+                            {
+                                <th class="text-center text-xs" colspan="2">@backness</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var height in Enum.GetValues<VowelHeight>())
+                        {
+                            <tr>
+                                <td class="text-xs font-semibold">@height</td>
+                                @foreach (var backness in Enum.GetValues<VowelBackness>())
+                                {
+                                    var unrSymbol = IpaData.ResolveVowel(height, backness, false);
+                                    var rndSymbol = IpaData.ResolveVowel(height, backness, true);
+                                    <td class="text-center p-0">
+                                        @if (unrSymbol is not null)
+                                        {
+                                            <button class="btn btn-ghost btn-xs font-mono text-lg p-0 min-h-0 h-7 w-7 @(IsSelectedVowel(height, backness, false) ? "bg-primary text-primary-content" : "")"
+                                                    title="@height @backness unrounded"
+                                                    @onclick='() => SelectVowel(height, backness, false)'>
+                                                @unrSymbol
+                                            </button>
+                                        }
+                                    </td>
+                                    <td class="text-center p-0">
+                                        @if (rndSymbol is not null)
+                                        {
+                                            <button class="btn btn-ghost btn-xs font-mono text-lg p-0 min-h-0 h-7 w-7 @(IsSelectedVowel(height, backness, true) ? "bg-primary text-primary-content" : "")"
+                                                    title="@height @backness rounded"
+                                                    @onclick='() => SelectVowel(height, backness, true)'>
+                                                @rndSymbol
+                                            </button>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <div class="modal-action">
+            <button class="btn btn-sm" @onclick="Cancel">Cancel</button>
+        </div>
+    </div>
+    <div class="modal-backdrop" @onclick="Cancel"></div>
+</div>
+
+@code {
+    [Parameter]
+    public Phoneme Phoneme { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback OnPicked { get; set; }
+
+    private Tab _activeTab = Tab.Consonants;
+
+    private enum Tab { Consonants, Vowels }
+
+    private void SelectConsonant(ConsonantPlace place, ConsonantManner manner, bool voiced)
+    {
+        Phoneme.Type = PhonemeType.Consonant;
+        Phoneme.Place = place;
+        Phoneme.Manner = manner;
+        Phoneme.Voiced = voiced;
+        Phoneme.Height = null;
+        Phoneme.Backness = null;
+        Phoneme.Rounded = null;
+        NotifyAndClose();
+    }
+
+    private void SelectVowel(VowelHeight height, VowelBackness backness, bool rounded)
+    {
+        Phoneme.Type = PhonemeType.Vowel;
+        Phoneme.Height = height;
+        Phoneme.Backness = backness;
+        Phoneme.Rounded = rounded;
+        Phoneme.Place = null;
+        Phoneme.Manner = null;
+        Phoneme.Voiced = null;
+        NotifyAndClose();
+    }
+
+    private bool IsSelectedConsonant(ConsonantPlace place, ConsonantManner manner, bool voiced) =>
+        Phoneme.Type == PhonemeType.Consonant
+        && Phoneme.Place == place
+        && Phoneme.Manner == manner
+        && Phoneme.Voiced == voiced;
+
+    private bool IsSelectedVowel(VowelHeight height, VowelBackness backness, bool rounded) =>
+        Phoneme.Type == PhonemeType.Vowel
+        && Phoneme.Height == height
+        && Phoneme.Backness == backness
+        && Phoneme.Rounded == rounded;
+
+    private async void NotifyAndClose()
+    {
+        await OnPicked.InvokeAsync();
+        StateHasChanged();
+    }
+
+    private void Cancel()
+    {
+        NotifyAndClose();
+    }
+
+    private static string ShortPlace(ConsonantPlace place) => place switch
+    {
+        ConsonantPlace.Bilabial => "Bilabial",
+        ConsonantPlace.Labiodental => "Labio-dental",
+        ConsonantPlace.Postalveolar => "Post-alv.",
+        _ => place.ToString()
+    };
+}

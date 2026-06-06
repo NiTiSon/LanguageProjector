@@ -33,10 +33,17 @@
                         var phoneme = Lang.Phonemes[i];
                         var index = i;
                         <tr>
-                            <td>
-                                <input type="text" class="input input-bordered input-sm w-20 font-mono text-center"
-                                       value="@phoneme.Symbol"
-                                       @onchange='(ChangeEventArgs e) => { phoneme.Symbol = e.Value?.ToString() ?? ""; _ = SaveAsync.InvokeAsync(); }' />
+                            <td class="text-center">
+                                <div class="flex items-center gap-1 justify-center">
+                                    <span class="font-mono text-2xl min-w-8 @(string.IsNullOrEmpty(phoneme.Symbol) ? "text-base-content/30" : "")">
+                                        @(string.IsNullOrEmpty(phoneme.Symbol) ? "—" : phoneme.Symbol)
+                                    </span>
+                                    <button class="btn btn-ghost btn-xs" title="Pick IPA symbol" @onclick='() => { _pickingIndex = index; }'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                             <td>
                                 <select class="select select-bordered select-sm"
@@ -132,6 +139,11 @@
     }
 </div>
 
+@if (_pickingIndex is not null && _pickingIndex < Lang.Phonemes.Count)
+{
+    <IpaPicker Phoneme="Lang.Phonemes[_pickingIndex.Value]" OnPicked="HandlePicked" />
+}
+
 @code {
     [Parameter]
     public Language Lang { get; set; } = default!;
@@ -139,9 +151,17 @@
     [Parameter]
     public EventCallback SaveAsync { get; set; }
 
+    private int? _pickingIndex;
+
+    private async Task HandlePicked()
+    {
+        _pickingIndex = null;
+        await SaveAsync.InvokeAsync();
+    }
+
     private void AddPhoneme()
     {
-        Lang.Phonemes.Add(Phoneme.Create("", PhonemeType.Consonant));
+        Lang.Phonemes.Add(Phoneme.Create(PhonemeType.Consonant));
         _ = SaveAsync.InvokeAsync();
     }
 }
