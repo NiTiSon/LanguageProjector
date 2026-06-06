@@ -17,13 +17,16 @@
     </Target>
 
     <Target Name="GenerateGitCommitHash" BeforeTargets="BeforeBuild">
-        <Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low">
-            <Output TaskParameter="ConsoleOutput" PropertyName="GitCommitHash" />
+        <PropertyGroup>
+            <_GitCommit Condition="'$(VERCEL_GIT_COMMIT_SHA)' != ''">$(VERCEL_GIT_COMMIT_SHA.Substring(0, 7))</_GitCommit>
+        </PropertyGroup>
+        <Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low" Condition="'$(_GitCommit)' == ''">
+            <Output TaskParameter="ConsoleOutput" PropertyName="_GitCommit" />
         </Exec>
-        <ItemGroup Condition="'$(GitCommitHash)' != ''">
+        <ItemGroup Condition="'$(_GitCommit)' != ''">
             <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
                 <_Parameter1>GitCommit</_Parameter1>
-                <_Parameter2>$(GitCommitHash)</_Parameter2>
+                <_Parameter2>$(_GitCommit)</_Parameter2>
             </AssemblyAttribute>
         </ItemGroup>
     </Target>
